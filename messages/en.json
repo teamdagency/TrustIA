@@ -1,0 +1,209 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Operation successful",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "settings": "Settings",
+    "logout": "Logout",
+    "profile": "Profile"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "email": "Email address",
+      "password": "Password",
+      "submit": "Sign in",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signup": "Create account"
+    },
+    "signup": {
+      "title": "Create account",
+      "fullName": "Full name",
+      "email": "Email address",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "submit": "Sign up",
+      "hasAccount": "Already have an account?",
+      "login": "Sign in"
+    },
+    "resetPassword": {
+      "title": "Reset password",
+      "email": "Email address",
+      "submit": "Send",
+      "backToLogin": "Back to login"
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "emailRequired": "Email is required",
+      "passwordRequired": "Password is required",
+      "passwordMismatch": "Passwords do not match",
+      "weakPassword": "Password must be at least 8 characters",
+      "emailExists": "An account with this email already exists"
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Collect and manage your customer reviews",
+      "subtitle": "Grow your online reputation with TrustIA. Collect, analyze and respond to your customer reviews across all platforms.",
+      "cta": "Start free trial",
+      "demo": "Watch demo"
+    },
+    "features": {
+      "title": "Features",
+      "subtitle": "Everything you need to manage your online reputation",
+      "reviewCollection": {
+        "title": "Review Collection",
+        "description": "Automatically collect authentic reviews via email, SMS or integrated widget"
+      },
+      "multiPlatform": {
+        "title": "Multi-platform",
+        "description": "Centralize your Google, Facebook, TripAdvisor reviews and more"
+      },
+      "analytics": {
+        "title": "Advanced Analytics",
+        "description": "Analyze your performance and track your progress in real-time"
+      },
+      "automation": {
+        "title": "Automation",
+        "description": "Automate collection and responses with AI"
+      },
+      "rewards": {
+        "title": "Rewards Program",
+        "description": "Motivate your customers with a customizable rewards system"
+      },
+      "whiteLabel": {
+        "title": "White-label",
+        "description": "Customize the platform with your brand"
+      }
+    },
+    "pricing": {
+      "title": "Pricing",
+      "subtitle": "Plans tailored to every need",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "yearlyDiscount": "Save 20%",
+      "perMonth": "/month",
+      "perYear": "/year",
+      "startTrial": "Start 14-day free trial",
+      "contact": "Contact us"
+    },
+    "testimonials": {
+      "title": "They trust us",
+      "subtitle": "Discover how TrustIA helps businesses grow their reputation"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Find answers to your questions"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome to TrustIA",
+    "overview": "Overview",
+    "recentActivity": "Recent activity"
+  },
+  "reviews": {
+    "title": "Reviews",
+    "all": "All reviews",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "averageRating": "Average rating",
+    "totalReviews": "Total reviews",
+    "bySource": "By source",
+    "byRating": "By rating",
+    "responseTime": "Average response time",
+    "respond": "Respond",
+    "approve": "Approve",
+    "reject": "Reject",
+    "flag": "Flag",
+    "noReviews": "No reviews yet"
+  },
+  "campaigns": {
+    "title": "Campaigns",
+    "active": "Active",
+    "draft": "Drafts",
+    "completed": "Completed",
+    "create": "New campaign",
+    "name": "Campaign name",
+    "type": "Type",
+    "trigger": "Trigger",
+    "template": "Template",
+    "stats": {
+      "sent": "Sent",
+      "opened": "Opened",
+      "clicked": "Clicked",
+      "reviews": "Reviews generated"
+    }
+  },
+  "customers": {
+    "title": "Customers",
+    "all": "All customers",
+    "add": "Add customer",
+    "import": "Import customers",
+    "export": "Export",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "tags": "Tags",
+    "totalReviews": "Reviews",
+    "lastReview": "Last review"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "overview": "Overview",
+    "trends": "Trends",
+    "comparison": "Comparison",
+    "insights": "Insights",
+    "export": "Export report"
+  },
+  "rewards": {
+    "title": "Rewards",
+    "create": "Create reward",
+    "name": "Name",
+    "type": "Type",
+    "value": "Value",
+    "minRating": "Minimum rating",
+    "redemptions": "Redemptions"
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "team": "Team",
+    "billing": "Billing",
+    "integrations": "Integrations",
+    "notifications": "Notifications",
+    "whiteLabel": "White-label"
+  },
+  "organization": {
+    "create": {
+      "title": "Create your organization",
+      "name": "Company name",
+      "slug": "Unique identifier",
+      "submit": "Create",
+      "success": "Organization created successfully"
+    },
+    "invite": {
+      "title": "Invite members",
+      "email": "Email address",
+      "role": "Role",
+      "submit": "Send invitation",
+      "success": "Invitation sent"
+    }
+  },
+  "roles": {
+    "owner": "Owner",
+    "admin": "Admin",
+    "member": "Member"
+  }
+}

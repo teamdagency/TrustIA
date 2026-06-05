@@ -1,0 +1,209 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "success": "Opération réussie",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "export": "Exporter",
+    "import": "Importer",
+    "settings": "Paramètres",
+    "logout": "Déconnexion",
+    "profile": "Profil"
+  },
+  "auth": {
+    "login": {
+      "title": "Connexion",
+      "email": "Adresse email",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "forgotPassword": "Mot de passe oublié ?",
+      "noAccount": "Pas encore de compte ?",
+      "signup": "Créer un compte"
+    },
+    "signup": {
+      "title": "Créer un compte",
+      "fullName": "Nom complet",
+      "email": "Adresse email",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "submit": "S'inscrire",
+      "hasAccount": "Déjà un compte ?",
+      "login": "Se connecter"
+    },
+    "resetPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "email": "Adresse email",
+      "submit": "Envoyer",
+      "backToLogin": "Retour à la connexion"
+    },
+    "errors": {
+      "invalidCredentials": "Email ou mot de passe incorrect",
+      "emailRequired": "L'email est requis",
+      "passwordRequired": "Le mot de passe est requis",
+      "passwordMismatch": "Les mots de passe ne correspondent pas",
+      "weakPassword": "Le mot de passe doit contenir au moins 8 caractères",
+      "emailExists": "Un compte existe déjà avec cet email"
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Collectionnez et gérez vos avis clients",
+      "subtitle": "Développez votre réputation en ligne avec TrustIA. Collectez, analysez et répondez à vos avis clients sur toutes les plateformes.",
+      "cta": "Commencer gratuitement",
+      "demo": "Voir une démo"
+    },
+    "features": {
+      "title": "Fonctionnalités",
+      "subtitle": "Tout ce dont vous avez besoin pour gérer votre réputation en ligne",
+      "reviewCollection": {
+        "title": "Collecte d'avis",
+        "description": "Collectez automatiquement des avis authentiques via email, SMS ou widget intégré"
+      },
+      "multiPlatform": {
+        "title": "Multi-plateformes",
+        "description": "Centralisez vos avis Google, Facebook, TripAdvisor et plus encore"
+      },
+      "analytics": {
+        "title": "Analytics avancés",
+        "description": "Analysez vos performances et suivez votre évolution en temps réel"
+      },
+      "automation": {
+        "title": "Automatisation",
+        "description": "Automatisez la collecte et les réponses grâce à l'IA"
+      },
+      "rewards": {
+        "title": "Programme de récompenses",
+        "description": "Motivez vos clients avec un système de récompenses personnalisable"
+      },
+      "whiteLabel": {
+        "title": "White-label",
+        "description": "Personnalisez la plateforme avec votre marque"
+      }
+    },
+    "pricing": {
+      "title": "Tarifs",
+      "subtitle": "Des plans adaptés à chaque besoin",
+      "monthly": "Mensuel",
+      "yearly": "Annuel",
+      "yearlyDiscount": "Économisez 20%",
+      "perMonth": "/mois",
+      "perYear": "/an",
+      "startTrial": "Essai gratuit 14 jours",
+      "contact": "Nous contacter"
+    },
+    "testimonials": {
+      "title": "Ils nous font confiance",
+      "subtitle": "Découvrez comment TrustIA aide les entreprises à développer leur réputation"
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "subtitle": "Trouvez les réponses à vos questions"
+    }
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "welcome": "Bienvenue sur TrustIA",
+    "overview": "Vue d'ensemble",
+    "recentActivity": "Activité récente"
+  },
+  "reviews": {
+    "title": "Avis",
+    "all": "Tous les avis",
+    "pending": "En attente",
+    "approved": "Approuvés",
+    "rejected": "Rejetés",
+    "averageRating": "Note moyenne",
+    "totalReviews": "Total des avis",
+    "bySource": "Par source",
+    "byRating": "Par note",
+    "responseTime": "Temps de réponse moyen",
+    "respond": "Répondre",
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "flag": "Signaler",
+    "noReviews": "Aucun avis pour le moment"
+  },
+  "campaigns": {
+    "title": "Campagnes",
+    "active": "Actives",
+    "draft": "Brouillons",
+    "completed": "Terminées",
+    "create": "Nouvelle campagne",
+    "name": "Nom de la campagne",
+    "type": "Type",
+    "trigger": "Déclencheur",
+    "template": "Modèle",
+    "stats": {
+      "sent": "Envoyés",
+      "opened": "Ouverts",
+      "clicked": "Cliqués",
+      "reviews": "Avis générés"
+    }
+  },
+  "customers": {
+    "title": "Clients",
+    "all": "Tous les clients",
+    "add": "Ajouter un client",
+    "import": "Importer des clients",
+    "export": "Exporter",
+    "name": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "tags": "Tags",
+    "totalReviews": "Avis",
+    "lastReview": "Dernier avis"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "overview": "Vue d'ensemble",
+    "trends": "Tendances",
+    "comparison": "Comparaison",
+    "insights": "Insights",
+    "export": "Exporter le rapport"
+  },
+  "rewards": {
+    "title": "Récompenses",
+    "create": "Créer une récompense",
+    "name": "Nom",
+    "type": "Type",
+    "value": "Valeur",
+    "minRating": "Note minimum",
+    "redemptions": "Utilisations"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "general": "Général",
+    "team": "Équipe",
+    "billing": "Facturation",
+    "integrations": "Intégrations",
+    "notifications": "Notifications",
+    "whiteLabel": "White-label"
+  },
+  "organization": {
+    "create": {
+      "title": "Créer votre organisation",
+      "name": "Nom de l'entreprise",
+      "slug": "Identifiant unique",
+      "submit": "Créer",
+      "success": "Organisation créée avec succès"
+    },
+    "invite": {
+      "title": "Inviter des membres",
+      "email": "Adresse email",
+      "role": "Rôle",
+      "submit": "Envoyer l'invitation",
+      "success": "Invitation envoyée"
+    }
+  },
+  "roles": {
+    "owner": "Propriétaire",
+    "admin": "Administrateur",
+    "member": "Membre"
+  }
+}
