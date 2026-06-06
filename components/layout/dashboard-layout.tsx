@@ -18,6 +18,8 @@ import {
   X,
   Bell,
   Search,
+  CreditCard,
+  UserCog,
 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -43,6 +45,8 @@ const navigation = [
 ];
 
 const secondaryNavigation = [
+  { name: 'Membres', href: '/dashboard/settings/members', icon: UserCog },
+  { name: 'Facturation', href: '/dashboard/billing', icon: CreditCard },
   { name: 'Parametres', href: '/dashboard/settings', icon: Settings },
 ];
 

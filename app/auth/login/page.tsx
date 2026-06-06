@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/providers/auth-provider';
+import { supabase } from '@/lib/supabase/client';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') || '/dashboard';
-  const { login } = useAuth();
+  const { login, refreshUser } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,7 +28,23 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      router.push(redirectTo);
+      await refreshUser();
+
+      // Check if user has any organization
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: memberships } = await supabase
+          .from('organization_members')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .limit(1);
+
+        if (!memberships || memberships.length === 0) {
+          router.push('/onboarding');
+        } else {
+          router.push(redirectTo);
+        }
+      }
     } catch (err: any) {
       setError(
         err.message === 'Invalid login credentials'
@@ -72,10 +89,7 @@ export default function LoginPage() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="password">Mot de passe</Label>
-            <Link
-              href="/auth/reset-password"
-              className="text-sm text-primary hover:underline"
-            >
+            <Link href="/auth/reset-password" className="text-sm text-primary hover:underline">
               Mot de passe oublie ?
             </Link>
           </div>
@@ -92,10 +106,7 @@ export default function LoginPage() {
 
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Connexion...
-            </>
+            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Connexion...</>
           ) : (
             'Se connecter'
           )}

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { AuthUser, Organization, UserRole } from '@/types';
+import type { AuthUser, UserRole, OrgSummary, PlanSlug } from '@/types';
+import { hasPermission } from '@/types';
 
 interface AuthState {
   user: AuthUser | null;
@@ -11,22 +12,33 @@ interface AuthState {
   setLoading: (loading: boolean) => void;
   setCurrentOrganization: (orgId: string) => void;
   logout: () => void;
+  // RBAC helpers
+  currentOrg: () => (OrgSummary & { plan: PlanSlug }) | undefined;
+  currentRole: () => UserRole | undefined;
+  can: (minRole: UserRole) => boolean;
+  isSuperAdmin: () => boolean;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
       isLoading: true,
       currentOrganizationId: null,
+
       setUser: (user) =>
         set({
           user,
           isAuthenticated: !!user,
-          currentOrganizationId: user?.currentOrganization?.id ?? user?.organizations[0]?.id ?? null,
+          currentOrganizationId:
+            get().currentOrganizationId && user?.organizations.some((o) => o.id === get().currentOrganizationId)
+              ? get().currentOrganizationId
+              : user?.currentOrganization?.id ?? user?.organizations[0]?.id ?? null,
         }),
+
       setLoading: (loading) => set({ isLoading: loading }),
+
       setCurrentOrganization: (orgId) =>
         set((state) => {
           if (!state.user) return state;
@@ -37,21 +49,28 @@ export const useAuthStore = create<AuthState>()(
             user: {
               ...state.user,
               currentOrganization: {
-                id: org.id,
-                name: org.name,
-                slug: org.slug,
-                role: org.role,
-                plan: 'starter',
+                ...org,
+                plan: 'starter' as PlanSlug,
               },
             },
           };
         }),
+
       logout: () =>
         set({
           user: null,
           isAuthenticated: false,
           currentOrganizationId: null,
         }),
+
+      currentOrg: () => get().user?.currentOrganization,
+      currentRole: () => get().user?.currentOrganization?.role,
+      can: (minRole) => {
+        const role = get().user?.currentOrganization?.role;
+        if (!role) return false;
+        return hasPermission(role, minRole);
+      },
+      isSuperAdmin: () => get().user?.currentOrganization?.role === 'super_admin',
     }),
     {
       name: 'trustia-auth',
