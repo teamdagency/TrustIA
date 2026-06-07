@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { canAccess, hasMinRole } from '@/lib/rbac';
 import type { AuthUser, UserRole, OrgSummary, PlanSlug } from '@/types';
-import { hasPermission } from '@/types';
 
 interface AuthState {
   user: AuthUser | null;
@@ -12,10 +12,10 @@ interface AuthState {
   setLoading: (loading: boolean) => void;
   setCurrentOrganization: (orgId: string) => void;
   logout: () => void;
-  // RBAC helpers
   currentOrg: () => (OrgSummary & { plan: PlanSlug }) | undefined;
   currentRole: () => UserRole | undefined;
-  can: (minRole: UserRole) => boolean;
+  can: (action: string) => boolean;
+  hasRole: (minRole: UserRole) => boolean;
   isSuperAdmin: () => boolean;
 }
 
@@ -48,35 +48,33 @@ export const useAuthStore = create<AuthState>()(
             currentOrganizationId: orgId,
             user: {
               ...state.user,
-              currentOrganization: {
-                ...org,
-                plan: 'starter' as PlanSlug,
-              },
+              currentOrganization: { ...org, plan: 'starter' as PlanSlug },
             },
           };
         }),
 
-      logout: () =>
-        set({
-          user: null,
-          isAuthenticated: false,
-          currentOrganizationId: null,
-        }),
+      logout: () => set({ user: null, isAuthenticated: false, currentOrganizationId: null }),
 
       currentOrg: () => get().user?.currentOrganization,
       currentRole: () => get().user?.currentOrganization?.role,
-      can: (minRole) => {
+
+      can: (action) => {
         const role = get().user?.currentOrganization?.role;
         if (!role) return false;
-        return hasPermission(role, minRole);
+        return canAccess(role, action);
       },
+
+      hasRole: (minRole) => {
+        const role = get().user?.currentOrganization?.role;
+        if (!role) return false;
+        return hasMinRole(role, minRole);
+      },
+
       isSuperAdmin: () => get().user?.currentOrganization?.role === 'super_admin',
     }),
     {
       name: 'trustia-auth',
-      partialize: (state) => ({
-        currentOrganizationId: state.currentOrganizationId,
-      }),
+      partialize: (state) => ({ currentOrganizationId: state.currentOrganizationId }),
     }
   )
 );

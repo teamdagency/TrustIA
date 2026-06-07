@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/providers/auth-provider';
 import { supabase } from '@/lib/supabase/client';
+import { OrganizationRepository } from '@/repositories/organization.repository';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,12 +32,12 @@ export default function OrganizationSettingsPage() {
   useEffect(() => {
     if (!currentOrganizationId) return;
     const load = async () => {
-      const [{ data: orgData }, { data: wlData }] = await Promise.all([
-        supabase.from('organizations').select('*').eq('id', currentOrganizationId).maybeSingle(),
+      const [orgData, { data: wlData }] = await Promise.all([
+        OrganizationRepository.findById(currentOrganizationId),
         supabase.from('white_label_configs').select('*').eq('organization_id', currentOrganizationId).maybeSingle(),
       ]);
       if (orgData) {
-        setOrg(orgData as Organization);
+        setOrg(orgData);
         setName(orgData.name);
         setIndustry(orgData.industry ?? '');
         setCountry(orgData.country ?? 'FR');
@@ -55,11 +56,7 @@ export default function OrganizationSettingsPage() {
     if (!currentOrganizationId || !isAdmin) return;
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from('organizations')
-        .update({ name, industry: industry || null, country })
-        .eq('id', currentOrganizationId);
-      if (error) throw error;
+      await OrganizationRepository.update(currentOrganizationId, { name, industry: industry || null, country });
       await refreshUser();
       toast({ title: 'Organisation mise a jour' });
     } catch {

@@ -2,23 +2,30 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/providers/auth-provider';
-import { supabase } from '@/lib/supabase/client';
+import { BillingService } from '@/services/billing.service';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Loader2, CreditCard, Check, AlertCircle } from 'lucide-react';
 import type { Subscription, Plan } from '@/types';
 
 const PLAN_FEATURES: Record<string, string[]> = {
-  starter: ['100 avis/mois', '5 campagnes', '2 membres', 'Widget site web', 'Email de sollicitation'],
-  pro: ['1 000 avis/mois', '20 campagnes', '10 membres', 'SMS automatises', 'Analytics avances'],
-  enterprise: ['Illimite', 'Campagnes illimitees', 'Membres illimites', 'White-label', 'API complet', 'Account manager'],
+  starter: ['100 avis/mois', '5 campagnes', '2 membres', 'Widget site web', 'Email'],
+  pro: ['1 000 avis/mois', '20 campagnes', '10 membres', 'SMS', 'Analytics avances'],
+  enterprise: ['Illimite', 'Membres illimites', 'White-label', 'API complet', 'Account manager'],
+};
+
+const STATUS_LABEL: Record<string, string> = {
+  active: 'Actif', trialing: 'Essai gratuit', past_due: 'Paiement en retard', canceled: 'Annule',
+};
+
+const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  active: 'default', trialing: 'secondary', past_due: 'destructive', canceled: 'outline',
 };
 
 export default function BillingPage() {
   const { currentOrganizationId, can } = useAuth();
-  const isAdmin = can('admin');
+  const isAdmin = can('manage_billing' as any);
   const [subscription, setSubscription] = useState<(Subscription & { plan: Plan }) | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,34 +33,16 @@ export default function BillingPage() {
   useEffect(() => {
     if (!currentOrganizationId) return;
     const load = async () => {
-      const [{ data: sub }, { data: plansData }] = await Promise.all([
-        supabase
-          .from('subscriptions')
-          .select('*, plan:plans(*)')
-          .eq('organization_id', currentOrganizationId)
-          .maybeSingle(),
-        supabase.from('plans').select('*').eq('is_active', true).order('price_monthly'),
+      const [sub, plansData] = await Promise.all([
+        BillingService.getSubscription(currentOrganizationId),
+        BillingService.getPlans(),
       ]);
-      setSubscription(sub as any);
-      setPlans((plansData ?? []) as Plan[]);
+      setSubscription(sub);
+      setPlans(plansData);
       setIsLoading(false);
     };
     load();
   }, [currentOrganizationId]);
-
-  const statusColor: Record<string, string> = {
-    active: 'default',
-    trialing: 'secondary',
-    past_due: 'destructive',
-    canceled: 'outline',
-  };
-
-  const statusLabel: Record<string, string> = {
-    active: 'Actif',
-    trialing: 'Essai gratuit',
-    past_due: 'Paiement en retard',
-    canceled: 'Annule',
-  };
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-48"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
@@ -66,14 +55,13 @@ export default function BillingPage() {
         <p className="text-muted-foreground mt-1">Gerez votre abonnement et vos paiements.</p>
       </div>
 
-      {/* Current Plan */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2"><CreditCard className="w-4 h-4" /> Abonnement actuel</CardTitle>
             {subscription && (
-              <Badge variant={statusColor[subscription.status] as any}>
-                {statusLabel[subscription.status] ?? subscription.status}
+              <Badge variant={STATUS_VARIANT[subscription.status] ?? 'secondary'}>
+                {STATUS_LABEL[subscription.status] ?? subscription.status}
               </Badge>
             )}
           </div>
@@ -110,7 +98,6 @@ export default function BillingPage() {
         </CardContent>
       </Card>
 
-      {/* Plans */}
       <div>
         <h2 className="text-lg font-semibold mb-4">Changer de plan</h2>
         <div className="grid gap-4 md:grid-cols-3">
@@ -125,7 +112,7 @@ export default function BillingPage() {
                     {isCurrent && <Badge>Actuel</Badge>}
                   </div>
                   <div className="mt-2">
-                    <span className="text-2xl font-bold">{((plan.price_monthly) / 100).toFixed(0)}€</span>
+                    <span className="text-2xl font-bold">{(plan.price_monthly / 100).toFixed(0)}€</span>
                     <span className="text-muted-foreground text-sm">/mois</span>
                   </div>
                 </CardHeader>
@@ -138,11 +125,7 @@ export default function BillingPage() {
                       </li>
                     ))}
                   </ul>
-                  <Button
-                    className="w-full"
-                    variant={isCurrent ? 'outline' : 'default'}
-                    disabled={isCurrent || !isAdmin}
-                  >
+                  <Button className="w-full" variant={isCurrent ? 'outline' : 'default'} disabled={isCurrent || !isAdmin}>
                     {isCurrent ? 'Plan actuel' : 'Choisir ce plan'}
                   </Button>
                 </CardContent>

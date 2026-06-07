@@ -4,6 +4,8 @@ import { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import { useAuthStore } from '@/stores/auth-store';
+import { MemberRepository } from '@/repositories/member.repository';
+import { UserRepository } from '@/repositories/user.repository';
 import type { AuthUser, UserRole, OrgSummary, PlanSlug } from '@/types';
 
 interface AuthContextType {
@@ -16,7 +18,8 @@ interface AuthContextType {
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   setCurrentOrganization: (orgId: string) => void;
-  can: (minRole: UserRole) => boolean;
+  can: (action: string) => boolean;
+  hasRole: (minRole: UserRole) => boolean;
   isSuperAdmin: () => boolean;
   refreshUser: () => Promise<void>;
 }
@@ -26,30 +29,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const {
-    user,
-    isLoading,
-    currentOrganizationId,
-    setUser,
-    setLoading,
-    setCurrentOrganization,
-    logout: logoutStore,
-    can,
-    isSuperAdmin,
+    user, isLoading, currentOrganizationId,
+    setUser, setLoading, setCurrentOrganization,
+    logout: logoutStore, can, hasRole, isSuperAdmin,
   } = useAuthStore();
 
   useEffect(() => {
     let mounted = true;
 
-    const initializeAuth = async () => {
+    const init = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!mounted) return;
-
-        if (session?.user) {
-          await fetchUserData(session.user.id);
-        } else {
-          setUser(null);
-        }
+        if (session?.user) await fetchUserData(session.user.id);
+        else setUser(null);
       } catch {
         if (mounted) setUser(null);
       } finally {
@@ -57,31 +50,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    initializeAuth();
+    init();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
-      if (event === 'SIGNED_IN' && session?.user) {
-        await fetchUserData(session.user.id);
-      } else if (event === 'SIGNED_OUT') {
-        logoutStore();
-      }
+      if (event === 'SIGNED_IN' && session?.user) await fetchUserData(session.user.id);
+      else if (event === 'SIGNED_OUT') logoutStore();
     });
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
 
   const fetchUserData = async (userId: string) => {
     try {
-      const [{ data: userData }, { data: memberships }] = await Promise.all([
-        supabase.from('users').select('*').eq('id', userId).maybeSingle(),
-        supabase
-          .from('organization_members')
-          .select('role, organization:organizations(id, name, slug, logo_url, type)')
-          .eq('user_id', userId),
+      const [userData, memberships] = await Promise.all([
+        UserRepository.findById(userId),
+        MemberRepository.findByUser(userId),
       ]);
 
       const organizations: OrgSummary[] = (memberships ?? []).map((m: any) => ({
@@ -93,7 +77,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logoUrl: m.organization.logo_url,
       }));
 
-      // Preserve current org if still valid
       const storedOrgId = useAuthStore.getState().currentOrganizationId;
       const activeOrg = organizations.find((o) => o.id === storedOrgId) ?? organizations[0];
 
@@ -103,9 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         fullName: userData?.full_name ?? '',
         avatarUrl: userData?.avatar_url ?? null,
         organizations,
-        currentOrganization: activeOrg
-          ? { ...activeOrg, plan: 'starter' as PlanSlug }
-          : undefined,
+        currentOrganization: activeOrg ? { ...activeOrg, plan: 'starter' as PlanSlug } : undefined,
       };
 
       setUser(authUser);
@@ -126,8 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = async (email: string, password: string, fullName: string) => {
     const { error } = await supabase.auth.signUp({
-      email,
-      password,
+      email, password,
       options: { data: { full_name: fullName } },
     });
     if (error) throw error;
@@ -147,22 +127,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isLoading,
-        isAuthenticated: !!user,
-        currentOrganizationId,
-        login,
-        signup,
-        logout,
-        resetPassword,
-        setCurrentOrganization,
-        can,
-        isSuperAdmin,
-        refreshUser,
-      }}
-    >
+    <AuthContext.Provider value={{
+      user, isLoading, isAuthenticated: !!user, currentOrganizationId,
+      login, signup, logout, resetPassword, setCurrentOrganization,
+      can, hasRole, isSuperAdmin, refreshUser,
+    }}>
       {children}
     </AuthContext.Provider>
   );
@@ -170,6 +139,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) throw new Error('useAuth must be used within an AuthProvider');
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 }

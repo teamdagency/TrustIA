@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/providers/auth-provider';
-import { supabase } from '@/lib/supabase/client';
+import { TenantService } from '@/services/tenant.service';
+import { MemberRepository, InvitationRepository } from '@/repositories/member.repository';
+import { canAccess } from '@/lib/rbac';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,19 +44,12 @@ export default function MembersPage() {
   const load = async () => {
     if (!currentOrganizationId) return;
     setIsLoading(true);
-    const [{ data: m }, { data: inv }] = await Promise.all([
-      supabase
-        .from('organization_members')
-        .select('*, user:users(id, email, full_name, avatar_url)')
-        .eq('organization_id', currentOrganizationId),
-      supabase
-        .from('invitations')
-        .select('*')
-        .eq('organization_id', currentOrganizationId)
-        .is('accepted_at', null),
+    const [m, inv] = await Promise.all([
+      MemberRepository.findByOrg(currentOrganizationId),
+      InvitationRepository.findPendingByOrg(currentOrganizationId),
     ]);
-    setMembers((m ?? []) as OrganizationMember[]);
-    setInvitations((inv ?? []) as Invitation[]);
+    setMembers(m);
+    setInvitations(inv);
     setIsLoading(false);
   };
 
@@ -65,13 +60,12 @@ export default function MembersPage() {
     if (!currentOrganizationId || !user) return;
     setIsInviting(true);
     try {
-      const { error } = await supabase.from('invitations').insert({
-        organization_id: currentOrganizationId,
+      await TenantService.inviteMember({
+        organizationId: currentOrganizationId,
+        invitedByUserId: user.id,
         email: inviteEmail,
         role: inviteRole,
-        invited_by: user.id,
       });
-      if (error) throw error;
       setInviteEmail('');
       setDialogOpen(false);
       await load();
@@ -84,12 +78,18 @@ export default function MembersPage() {
   };
 
   const handleRemoveMember = async (memberId: string) => {
-    const { error } = await supabase.from('organization_members').delete().eq('id', memberId);
-    if (!error) { await load(); toast({ title: 'Membre supprime' }); }
+    if (!currentOrganizationId || !user) return;
+    await TenantService.removeMember({
+      organizationId: currentOrganizationId,
+      memberId,
+      removedByUserId: user.id,
+    });
+    await load();
+    toast({ title: 'Membre supprime' });
   };
 
   const handleCancelInvitation = async (invId: string) => {
-    await supabase.from('invitations').delete().eq('id', invId);
+    await InvitationRepository.cancel(invId);
     await load();
     toast({ title: 'Invitation annulee' });
   };

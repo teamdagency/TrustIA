@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/auth-provider';
-import { supabase } from '@/lib/supabase/client';
+import { TenantService } from '@/services/tenant.service';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,20 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Building2, ArrowRight } from 'lucide-react';
 
-function slugify(text: string) {
-  return text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
 export default function OnboardingPage() {
   const { user, refreshUser } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const [step, setStep] = useState(1);
   const [name, setName] = useState('');
   const [industry, setIndustry] = useState('');
   const [country, setCountry] = useState('FR');
@@ -36,36 +26,12 @@ export default function OnboardingPage() {
     if (!user) return;
     setIsCreating(true);
     try {
-      const baseSlug = slugify(name);
-      let slug = baseSlug;
-      let attempt = 0;
-
-      // Ensure unique slug
-      while (true) {
-        const { data: existing } = await supabase
-          .from('organizations')
-          .select('id')
-          .eq('slug', slug)
-          .maybeSingle();
-        if (!existing) break;
-        attempt++;
-        slug = `${baseSlug}-${attempt}`;
-      }
-
-      const { data: org, error: orgError } = await supabase
-        .from('organizations')
-        .insert({ name, slug, industry: industry || null, country, trial_ends_at: new Date(Date.now() + 14 * 86400000).toISOString() })
-        .select()
-        .single();
-
-      if (orgError) throw orgError;
-
-      const { error: memberError } = await supabase
-        .from('organization_members')
-        .insert({ organization_id: org.id, user_id: user.id, role: 'owner' });
-
-      if (memberError) throw memberError;
-
+      await TenantService.createOrganization({
+        name: name.trim(),
+        industry: industry || null,
+        country,
+        createdByUserId: user.id,
+      });
       await refreshUser();
       router.push('/dashboard');
     } catch (err: any) {
@@ -78,7 +44,6 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex w-12 h-12 bg-primary rounded-xl items-center justify-center mb-4">
             <svg className="w-7 h-7 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,11 +76,6 @@ export default function OnboardingPage() {
                   required
                   autoFocus
                 />
-                {name && (
-                  <p className="text-xs text-muted-foreground font-mono">
-                    Identifiant: {slugify(name)}
-                  </p>
-                )}
               </div>
 
               <div className="space-y-2">

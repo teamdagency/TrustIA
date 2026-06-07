@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/providers/auth-provider';
 import { supabase } from '@/lib/supabase/client';
+import { UserRepository } from '@/repositories/user.repository';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,11 +26,7 @@ export default function SettingsPage() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from('users')
-        .update({ full_name: fullName })
-        .eq('id', user!.id);
-      if (error) throw error;
+      await UserRepository.update(user!.id, { full_name: fullName });
       await refreshUser();
       toast({ title: 'Profil mis a jour' });
     } catch {
